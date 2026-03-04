@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.Map;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 public class PhotoAlbumController {
@@ -33,4 +36,10 @@ public class PhotoAlbumController {
     public ResponseEntity<Void> deleteUser(@PathVariable("user_id") Long userId) {
         return ResponseEntity.noContent().build();
     }
+    // Update photo album title, description, or date
+    @PatchMapping("/api/albums/{album_id}")
+    public ResponseEntity<Void> updateAlbum(@PathVariable("album_id") Long albumId, @RequestBody Map<String, String> updates) {
+        return ResponseEntity.noContent().build();
+    }
+
 }
