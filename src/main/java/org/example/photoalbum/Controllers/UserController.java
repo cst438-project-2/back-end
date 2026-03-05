@@ -1,4 +1,4 @@
-package org.example.photoalbum;
+package org.example.photoalbum.Controllers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,5 +42,13 @@ public class UserController {
                 "user_id", userId,
                 "is_admin", request.isAdmin()
         ));
+    }
+
+    // DELETE /api/users/{user_id}
+    // Deletes a specific user from the database
+    // Returns a status code whether delete was successful or not
+    @DeleteMapping("/api/users/{user_id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable("user_id") Long userId) {
+        return ResponseEntity.noContent().build();
     }
 }

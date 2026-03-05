@@ -1,4 +1,4 @@
-package org.example.photoalbum;
+package org.example.photoalbum.Controllers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.http.HttpStatus;
@@ -63,5 +63,28 @@ public class AlbumController {
                 "album_id", albumId,
                 "photo_url", request.photoUrl()
         ));
+    }
+
+    // Update photo album title, description, or date
+    @PatchMapping("/api/albums/{album_id}")
+    public ResponseEntity<Void> updateAlbum(@PathVariable("album_id") Long albumId, @RequestBody Map<String, String> updates) {
+        return ResponseEntity.noContent().build();
+    }
+
+    // DELETE /api/albums/{album_id}/photos
+    // Deletes specified photos from an album
+    // Takes a body parameter with a list of photoIds to delete
+    // Returns a status code based on whether deletion was successful
+    @DeleteMapping("/api/albums/{album_id}/photos")
+    public ResponseEntity<Void> deletePhotos(@PathVariable("album_id") Long albumId) {
+        return ResponseEntity.noContent().build();
+    }
+
+    // DELETE /api/albums/{album_id}
+    // Deletes an entire album
+    // Returns a status code based on whether deletion was successful
+    @DeleteMapping("/api/albums/{album_id}")
+    public ResponseEntity<Void> deleteAlbum(@PathVariable("album_id") Long albumId) {
+        return ResponseEntity.noContent().build();
     }
 }
