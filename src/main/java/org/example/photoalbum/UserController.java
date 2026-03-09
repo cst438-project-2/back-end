@@ -1,6 +1,7 @@
 package org.example.photoalbum;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,14 @@ import java.util.Map;
 @RequestMapping("/api/users")
 public class UserController {
 
+    @GetMapping("/me")
+    public Map<String, Object> me(HttpServletRequest req) {
+        return Map.of(
+                "uid", req.getAttribute("uid"),
+                "email", req.getAttribute("email"),
+                "name", req.getAttribute("name")
+        );
+    }
     // Temporary in-memory store mapping user IDs to their admin status.
     // Replace with a database repository once persistence is set up.
     private final Map<Long, Boolean> userAdminStatus = new HashMap<>();
