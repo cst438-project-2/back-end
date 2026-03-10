@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Table(name = "albums")
 public class Album {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -16,11 +17,11 @@ public class Album {
     private String description;
     private LocalDateTime date;
 
-    // One to many relationship to photos
+    // One-to-many relationship to photos
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL)
     private List<Photo> photos;
 
-    // Many to one relationship with users
+    // Many-to-one relationship with users
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -12,7 +13,7 @@ public class User {
     private String username;
     private String email;
 
-    // One to many with albums
+    // One-to-many with albums
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Album> albums;
 

@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "photos")
 public class Photo {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -14,7 +15,7 @@ public class Photo {
     private String photo_url;
     private LocalDateTime added_at;
 
-    // Many to one relationship with albums
+    // Many-to-one relationship with albums
     @ManyToOne
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
