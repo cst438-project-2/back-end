@@ -12,6 +12,7 @@ import java.util.Map;
 @RequestMapping("/api/users")
 public class UserController {
 
+    // Firebase
     @GetMapping("/me")
     public Map<String, Object> me(HttpServletRequest req) {
         return Map.of(
