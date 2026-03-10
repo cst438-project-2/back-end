@@ -3,6 +3,7 @@ package org.example.photoalbum.Controllers;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.StreamingHttpOutputMessage;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -26,6 +27,12 @@ public class AlbumController {
     // Request body for adding a photo to an album.
     // @JsonProperty maps the JSON field "photo_url" to the Java field "photoUrl".
     public record AddPhotoRequest(@JsonProperty("photo_url") String photoUrl) {}
+
+    // Test GET Route
+    @GetMapping("/test")
+    public String getString() {
+        return "Album Route Test";
+    }
 
     // POST /api/albums
     // Creates a new photo album with a title and description.
