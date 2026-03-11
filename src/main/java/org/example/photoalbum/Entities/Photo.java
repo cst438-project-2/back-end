@@ -44,4 +44,36 @@ public class Photo {
     public String getPhotoUrl() {
         return photo_url;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getPhoto_url() {
+        return photo_url;
+    }
+
+    public void setPhoto_url(String photo_url) {
+        this.photo_url = photo_url;
+    }
+
+    public LocalDateTime getAdded_at() {
+        return added_at;
+    }
+
+    public void setAdded_at(LocalDateTime added_at) {
+        this.added_at = added_at;
+    }
+
+    public Album getAlbum() {
+        return album;
+    }
+
+    public void setAlbum(Album album) {
+        this.album = album;
+    }
 }
