@@ -9,7 +9,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-public class UserController {
+public class MeController {
 
     @GetMapping("/me")
     public Map<String, Object> me(HttpServletRequest req) {
