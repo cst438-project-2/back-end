@@ -11,14 +11,20 @@ public class FirebaseConfig {
 
     @PostConstruct
     public void init() throws Exception {
-        if (!FirebaseApp.getApps().isEmpty()) return;
+        try {
+            if (!FirebaseApp.getApps().isEmpty()) return;
 
-        FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.getApplicationDefault())
-                .build();
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.getApplicationDefault())
+                    .build();
 
-        FirebaseApp.initializeApp(options);
+            FirebaseApp.initializeApp(options);
 
-        System.out.println("✅ Firebase Admin initialized");
+            System.out.println("✅ Firebase Admin initialized");
+        } catch (Exception e) {
+            // Need to setup Google Application Default Credentials: gcloud auth application-default login
+            // Fallback for now. If no credentials, don't initialize firebase
+            System.out.println("Firebase not initialized (no credentials found)");
+        }
     }
 }

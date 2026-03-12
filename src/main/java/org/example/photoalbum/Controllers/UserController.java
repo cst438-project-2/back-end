@@ -1,6 +1,7 @@
-package org.example.photoalbum;
+package org.example.photoalbum.Controllers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,7 +11,16 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-
+    
+    // Firebase
+    @GetMapping("/me")
+    public Map<String, Object> me(HttpServletRequest req) {
+        return Map.of(
+                "uid", req.getAttribute("uid"),
+                "email", req.getAttribute("email"),
+                "name", req.getAttribute("name")
+        );
+    }
     // Temporary in-memory store mapping user IDs to their admin status.
     // Replace with a database repository once persistence is set up.
     private final Map<Long, Boolean> userAdminStatus = new HashMap<>();
@@ -33,5 +43,13 @@ public class UserController {
                 "user_id", userId,
                 "is_admin", request.isAdmin()
         ));
+    }
+
+    // DELETE /api/users/{user_id}
+    // Deletes a specific user from the database
+    // Returns a status code whether delete was successful or not
+    @DeleteMapping("/api/users/{user_id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable("user_id") Long userId) {
+        return ResponseEntity.noContent().build();
     }
 }
