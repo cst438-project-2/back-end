@@ -14,28 +14,33 @@ public class FirebaseConfig {
 
     @PostConstruct
     public void init() throws Exception {
-        if (!FirebaseApp.getApps().isEmpty()) return;
+        try {
+            if (!FirebaseApp.getApps().isEmpty()) return;
 
-        // Read Firebase credentials from environment variable (used on Render)
-        String credentialsJson = System.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON");
+            // Read Firebase credentials from environment variable (used on Render)
+            String credentialsJson = System.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON");
 
-        GoogleCredentials credentials;
-        if (credentialsJson != null && !credentialsJson.isBlank()) {
-            // On Render: parse credentials from the env var JSON string
-            credentials = GoogleCredentials.fromStream(
-                new ByteArrayInputStream(credentialsJson.getBytes(StandardCharsets.UTF_8))
-            );
-        } else {
-            // Locally: fall back to gcloud application default credentials
-            credentials = GoogleCredentials.getApplicationDefault();
+            GoogleCredentials credentials;
+            if (credentialsJson != null && !credentialsJson.isBlank()) {
+                // On Render: parse credentials from the env var JSON string
+                credentials = GoogleCredentials.fromStream(
+                    new ByteArrayInputStream(credentialsJson.getBytes(StandardCharsets.UTF_8))
+                );
+            } else {
+                // Locally: fall back to gcloud application default credentials
+                credentials = GoogleCredentials.getApplicationDefault();
+            }
+
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(credentials)
+                    .build();
+
+            FirebaseApp.initializeApp(options);
+            System.out.println("Firebase Admin initialized");
+        } catch (Exception e) {
+            // Need to setup Google Application Default Credentials: gcloud auth application-default login
+            // Fallback for now. If no credentials, don't initialize firebase
+            System.out.println("Firebase not initialized (no credentials found)");
         }
-
-        FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(credentials)
-                .build();
-
-        FirebaseApp.initializeApp(options);
-
-        System.out.println("Firebase Admin initialized");
     }
 }
