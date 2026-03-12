@@ -34,6 +34,24 @@ public class AlbumController {
         return "Album Route Test";
     }
 
+    // GET /api/albums
+    // Returns all albums
+    @GetMapping
+    public ResponseEntity<List<Map<String, Object>>> getAllAlbums() {
+        return ResponseEntity.ok(new ArrayList<>(albums.values()));
+    }
+
+    // GET /api/albums/{album_id}
+    // Returns a single album by ID, or 404 if not found
+    @GetMapping("/{album_id}")
+    public ResponseEntity<Map<String, Object>> getAlbum(@PathVariable("album_id") Long albumId) {
+        Map<String, Object> album = albums.get(albumId);
+        if (album == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(album);
+    }
+
     // POST /api/albums
     // Creates a new photo album with a title and description.
     // Returns the created album (including its generated ID) with a 201 status.
@@ -73,7 +91,7 @@ public class AlbumController {
     }
 
     // Update photo album title, description, or date
-    @PatchMapping("/api/albums/{album_id}")
+    @PatchMapping("/{album_id}")
     public ResponseEntity<Void> updateAlbum(@PathVariable("album_id") Long albumId, @RequestBody Map<String, String> updates) {
         return ResponseEntity.noContent().build();
     }
@@ -82,7 +100,7 @@ public class AlbumController {
     // Deletes specified photos from an album
     // Takes a body parameter with a list of photoIds to delete
     // Returns a status code based on whether deletion was successful
-    @DeleteMapping("/api/albums/{album_id}/photos")
+    @DeleteMapping("/{album_id}/photos")
     public ResponseEntity<Void> deletePhotos(@PathVariable("album_id") Long albumId) {
         return ResponseEntity.noContent().build();
     }
@@ -90,7 +108,7 @@ public class AlbumController {
     // DELETE /api/albums/{album_id}
     // Deletes an entire album
     // Returns a status code based on whether deletion was successful
-    @DeleteMapping("/api/albums/{album_id}")
+    @DeleteMapping("/{album_id}")
     public ResponseEntity<Void> deleteAlbum(@PathVariable("album_id") Long albumId) {
         return ResponseEntity.noContent().build();
     }

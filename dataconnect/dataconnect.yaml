@@ -1,0 +1,13 @@
+specVersion: "v1"
+serviceId: "photoapi-57629-service"
+location: "us-west2"
+schemas:
+  - source: "./schema"
+    datasource:
+      postgresql:
+        database: "photoapi-57629-database"
+        cloudSql:
+          instanceId: "photoapi-57629-instance"
+          # schemaValidation: "STRICT"     # STRICT mode makes Postgres schema match Data Connect exactly.
+          # schemaValidation: "COMPATIBLE" # COMPATIBLE mode makes Postgres schema compatible with Data Connect.
+connectorDirs: ["./example"]
