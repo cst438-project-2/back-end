@@ -13,6 +13,7 @@ public class User {
     private Long uid; // Generated u_id from firebase. Use this to look up user ID.
     private String username;
     private String email;
+    private Boolean isAdmin = Boolean.FALSE;
 
     // One-to-many with albums
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -20,9 +21,10 @@ public class User {
 
     protected User() {}
 
-    public User(String username, String email) {
+    public User(String username, String email, Long uid) {
         this.username = username;
         this.email = email;
+        this.uid = uid;
     }
 
     @Override
@@ -70,5 +72,13 @@ public class User {
 
     public void setUid(Long uid) {
         this.uid = uid;
+    }
+
+    public Boolean getAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(Boolean admin) {
+        isAdmin = admin;
     }
 }

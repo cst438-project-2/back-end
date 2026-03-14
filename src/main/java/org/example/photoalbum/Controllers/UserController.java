@@ -3,10 +3,13 @@ package org.example.photoalbum.Controllers;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.photoalbum.Entities.Album;
+import org.example.photoalbum.Entities.User;
 import org.example.photoalbum.Repositories.AlbumRepository;
 import org.example.photoalbum.Repositories.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +27,8 @@ public class UserController {
         this.albumRepository = albumRepository;
     }
     
-    // Firebase
+    // GET /api/users/me
+    // Retrieves Firebase credentials from Oauth
     @GetMapping("/me")
     public Map<String, Object> me(HttpServletRequest req) {
         return Map.of(
@@ -45,16 +49,21 @@ public class UserController {
     // Updates whether a user has admin privileges.
     // Returns the updated user_id and is_admin value on success.
     @PutMapping("/{user_id}")
-    public ResponseEntity<Map<String, Object>> updateAdminStatus(
+    public User updateAdminStatus(
             @PathVariable("user_id") Long userId) {
-        return ResponseEntity.noContent().build();
+        return userRepository.findById(userId)
+                .map(user -> {
+                    user.setAdmin(!user.getAdmin());
+                    return userRepository.save(user);
+                })
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     // DELETE /api/users/{user_id}
     // Deletes a specific user from the database
     // Returns a status code whether delete was successful or not
     @DeleteMapping("/api/users/{user_id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable("user_id") Long userId) {
-        return ResponseEntity.noContent().build();
+    public void deleteUser(@PathVariable("user_id") Long userId) {
+        userRepository.deleteById(userId);
     }
 }
