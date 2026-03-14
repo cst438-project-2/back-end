@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.StreamingHttpOutputMessage;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -36,24 +37,33 @@ public class AlbumController {
     // GET /api/albums/{album_id}
     // Returns a single album by ID
     @GetMapping("/{album_id}")
-    public Optional<Album> getAlbum(@PathVariable("album_id") Long albumId) {
-        return albumRepository.findById(albumId);
+    public Album getAlbum(@PathVariable("album_id") Long albumId) {
+        return albumRepository.findById(albumId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Album not found"));
     }
 
     // POST /api/albums
     // Creates a new photo album with a title and description.
     // Returns the created album (including its generated ID) with a 201 status.
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createAlbum() {
-        return ResponseEntity.noContent().build();
+    @ResponseStatus(HttpStatus.CREATED)
+    public Album createAlbum(@RequestBody Album newAlbum) {
+        return albumRepository.save(newAlbum);
     }
 
     // POST /api/albums/{album_id}/photos
     // Adds a photo URL to an existing album.
     // Returns 404 if the album doesn't exist, otherwise returns the added photo with a 201 status.
     @PostMapping("/{album_id}/photos")
-    public ResponseEntity<?> addPhoto() {
-        return ResponseEntity.noContent().build();
+    @ResponseStatus(HttpStatus.CREATED)
+    public Photo addPhoto(@PathVariable("album_id") Long albumId,
+                          @RequestBody Photo newPhoto) {
+
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Album not found"));
+
+        newPhoto.setAlbum(album);
+        return photoRepository.save(newPhoto);
     }
 
     // Update photo album title, description, or date
