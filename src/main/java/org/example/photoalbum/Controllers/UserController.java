@@ -2,15 +2,27 @@ package org.example.photoalbum.Controllers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.servlet.http.HttpServletRequest;
+import org.example.photoalbum.Entities.Album;
+import org.example.photoalbum.Repositories.AlbumRepository;
+import org.example.photoalbum.Repositories.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+
+    private final UserRepository userRepository;
+    private final AlbumRepository albumRepository;
+
+    public UserController(UserRepository userRepository, AlbumRepository albumRepository) {
+        this.userRepository = userRepository;
+        this.albumRepository = albumRepository;
+    }
     
     // Firebase
     @GetMapping("/me")
@@ -21,13 +33,13 @@ public class UserController {
                 "name", req.getAttribute("name")
         );
     }
-    // Temporary in-memory store mapping user IDs to their admin status.
-    // Replace with a database repository once persistence is set up.
-    private final Map<Long, Boolean> userAdminStatus = new HashMap<>();
 
-    // Request body for the update-admin-status endpoint.
-    // @JsonProperty maps the JSON field "is_admin" to the Java field "isAdmin".
-    public record UpdateAdminRequest(@JsonProperty("is_admin") boolean isAdmin) {}
+    // GET /api/users/{user_id}/albums
+    // Gets all albums for a specific user
+    @GetMapping("/{user_id}/albums")
+    public List<Album> getAllAlbumsByUser(@PathVariable("user_id") Long userId) {
+        return albumRepository.findByUserId(userId);
+    }
 
     // PUT /api/users/{user_id}
     // Updates whether a user has admin privileges.
