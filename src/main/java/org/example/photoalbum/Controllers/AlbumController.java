@@ -11,6 +11,7 @@ import org.springframework.http.StreamingHttpOutputMessage;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -66,10 +67,29 @@ public class AlbumController {
         return photoRepository.save(newPhoto);
     }
 
+    // PUT /api/albums/{album_id}
     // Update photo album title, description, or date
     @PatchMapping("/{album_id}")
-    public ResponseEntity<Void> updateAlbum(@PathVariable("album_id") Long albumId, @RequestBody Map<String, String> updates) {
-        return ResponseEntity.noContent().build();
+    public Album updateAlbum(
+            @PathVariable("album_id") Long albumId,
+            @RequestBody Map<String, String> updates) {
+
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Album not found"));
+
+        if (updates.containsKey("title")) {
+            album.setTitle(updates.get("title"));
+        }
+
+        if (updates.containsKey("description")) {
+            album.setDescription(updates.get("description"));
+        }
+
+        if (updates.containsKey("date")) {
+            album.setDate(LocalDateTime.parse(updates.get("date")));
+        }
+
+        return albumRepository.save(album);
     }
 
     // DELETE /api/albums/{album_id}/photos
@@ -77,15 +97,27 @@ public class AlbumController {
     // Takes a body parameter with a list of photoIds to delete
     // Returns a status code based on whether deletion was successful
     @DeleteMapping("/{album_id}/photos")
-    public ResponseEntity<Void> deletePhotos(@PathVariable("album_id") Long albumId) {
-        return ResponseEntity.noContent().build();
+    public void deletePhotos(@PathVariable("album_id") Long albumId,
+                             @RequestBody List<Long> photoIds) {
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Album not found"));
+
+        List<Photo> photos = photoRepository.findAllById(photoIds);
+
+        for (Photo photo : photos) {
+            if (!photo.getAlbum().getId().equals(album.getId())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Photo does not belong to this album");
+            }
+        }
+
+        photoRepository.deleteAll(photos);
     }
 
     // DELETE /api/albums/{album_id}
     // Deletes an entire album
     // Returns a status code based on whether deletion was successful
     @DeleteMapping("/{album_id}")
-    public ResponseEntity<Void> deleteAlbum(@PathVariable("album_id") Long albumId) {
-        return ResponseEntity.noContent().build();
+    public void deleteAlbum(@PathVariable("album_id") Long albumId) {
+        albumRepository.deleteById(albumId);
     }
 }

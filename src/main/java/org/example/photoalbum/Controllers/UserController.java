@@ -46,15 +46,8 @@ public class UserController {
     // Returns the updated user_id and is_admin value on success.
     @PutMapping("/{user_id}")
     public ResponseEntity<Map<String, Object>> updateAdminStatus(
-            @PathVariable("user_id") Long userId,
-            @RequestBody UpdateAdminRequest request) {
-
-        userAdminStatus.put(userId, request.isAdmin());
-
-        return ResponseEntity.ok(Map.of(
-                "user_id", userId,
-                "is_admin", request.isAdmin()
-        ));
+            @PathVariable("user_id") Long userId) {
+        return ResponseEntity.noContent().build();
     }
 
     // DELETE /api/users/{user_id}
