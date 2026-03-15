@@ -10,28 +10,60 @@
 
 This project uses Docker so that teammates do not need Java, JDK, or Maven installed to run the app.
 
-## Running the App (Teammates)
+---
+
+## Running Locally (IntelliJ)
 
 ### Prerequisites
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+- Java 17
+- Maven
+- IntelliJ IDEA
+- Docker Desktop (optional, for Docker setup)
+- Google account added to the `photoapi-57629`
+### Step 1 — Install Google Cloud CLI
+Download from: https://cloud.google.com/sdk/docs/install
 
-### Steps
+During installation it will prompt you to log in — sign in with your Google account and select project `photoapi-57629`.
 
-**1. Clone the repo (if you haven't already)**
+Then run this to set up application credentials:
 ```
-git clone https://github.com/cst438-project-2/back-end.git
-cd back-end
+gcloud auth application-default login
 ```
 
-**2 Run 
+### Step 2 — Download Cloud SQL Auth Proxy
 ```
-docker build -t photo-album-backend .
+curl -o cloud-sql-proxy.exe https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.15.2/cloud-sql-proxy.x64.exe
 ```
-**3 Build 
+
+### Step 3 — Run the Proxy
+Run this in a terminal and **leave it open** every time before starting the app:
 ```
- docker run -p 8080:8080 photo-album-backend
+.\cloud-sql-proxy.exe photoapi-57629:us-west2:photoapi-57629-instance
 ```
-**4 to Stop Docker 
+
+
+
+### Step 4 — Run the App
+Start the app in IntelliJ. The app will be available at `http://localhost:8080`.
+
+---
+
+## Running with Docker
+
+Make sure the proxy is running with:
 ```
- Ctrl+C  in terminal its running in 
+.\cloud-sql-proxy.exe --address 0.0.0.0 --port 5432 photoapi-57629:us-west2:photoapi-57629-instance
 ```
+
+Then:
+```
+docker compose up --build
+```
+
+To stop:
+```
+Ctrl+C
+```
+
+---
+
