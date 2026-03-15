@@ -36,10 +36,11 @@ curl -o cloud-sql-proxy.exe https://storage.googleapis.com/cloud-sql-connectors/
 ```
 
 ### Step 3 — Run the Proxy
-Run this in a terminal and **leave it open** every time before starting the app:
+Open a terminal (cmd, PowerShell, or terminal in your IDE), navigate to the folder where you saved `cloud-sql-proxy.exe`, and run:
 ```
 .\cloud-sql-proxy.exe photoapi-57629:us-west2:photoapi-57629-instance
 ```
+Leave this terminal open every time before starting the app.
 
 
 
@@ -57,7 +58,7 @@ Make sure the proxy is running with:
 
 Then:
 ```
-docker compose up --build
+docker compose up --build, exclude --build if reusing docker image
 ```
 
 To stop:
