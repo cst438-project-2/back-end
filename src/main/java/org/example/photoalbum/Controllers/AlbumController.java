@@ -44,7 +44,7 @@ public class AlbumController {
     }
 
     // POST /api/albums
-    // Creates a new photo album with a title and description.
+    // Creates a new photo album.
     // Returns the created album (including its generated ID) with a 201 status.
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -67,7 +67,7 @@ public class AlbumController {
         return photoRepository.save(newPhoto);
     }
 
-    // PUT /api/albums/{album_id}
+    // PATCH /api/albums/{album_id}
     // Update photo album title, description, or date
     @PatchMapping("/{album_id}")
     public Album updateAlbum(

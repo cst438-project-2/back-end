@@ -38,7 +38,7 @@ public class UserController {
         );
     }
 
-    // GET /api/users/{user_id}/albums
+    // GET /api/users/{user_id}/albums/
     // Gets all albums for a specific user
     @GetMapping("/{user_id}/albums")
     public List<Album> getAllAlbumsByUser(@PathVariable("user_id") Long userId) {
