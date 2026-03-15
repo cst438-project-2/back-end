@@ -58,10 +58,10 @@
             <version>1.23.0</version>
         </dependency>
 
-        <!-- Embedded DB for local testing -->
+        <!-- PostgreSQL driver for Cloud SQL -->
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 
