@@ -1,5 +1,6 @@
 package org.example.photoalbum.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class User {
     private Boolean isAdmin = Boolean.FALSE;
 
     // One-to-many with albums
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Album> albums;
 
