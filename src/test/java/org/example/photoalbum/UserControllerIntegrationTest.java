@@ -1,6 +1,5 @@
 package org.example.photoalbum;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.photoalbum.Entities.Album;
 import org.example.photoalbum.Entities.User;
 import org.example.photoalbum.Repositories.AlbumRepository;
@@ -9,7 +8,7 @@ import org.example.photoalbum.Repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
