@@ -41,9 +41,6 @@ public class Photo {
         );
     }
 
-    public String getPhotoUrl() {
-        return photo_url;
-    }
 
     public Long getId() {
         return id;
