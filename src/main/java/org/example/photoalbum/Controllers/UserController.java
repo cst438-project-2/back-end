@@ -1,19 +1,21 @@
 package org.example.photoalbum.Controllers;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.ResponseEntity;
+import org.example.photoalbum.Entities.Album;
+import org.example.photoalbum.Entities.User;
+import org.example.photoalbum.Repositories.AlbumRepository;
+import org.example.photoalbum.Repositories.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -21,8 +23,17 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+
+    private final UserRepository userRepository;
+    private final AlbumRepository albumRepository;
+
+    public UserController(UserRepository userRepository, AlbumRepository albumRepository) {
+        this.userRepository = userRepository;
+        this.albumRepository = albumRepository;
+    }
     
-    // Firebase
+    // GET /api/users/me
+    // Retrieves Firebase credentials from Oauth
     @GetMapping("/me")
     public Map<String, Object> me(HttpServletRequest req) {
         return Map.of(
@@ -31,35 +42,33 @@ public class UserController {
                 "name", req.getAttribute("name")
         );
     }
-    // Temporary in-memory store mapping user IDs to their admin status.
-    // Replace with a database repository once persistence is set up.
-    private final Map<Long, Boolean> userAdminStatus = new HashMap<>();
 
-    // Request body for the update-admin-status endpoint.
-    // @JsonProperty maps the JSON field "is_admin" to the Java field "isAdmin".
-    public record UpdateAdminRequest(@JsonProperty("is_admin") boolean isAdmin) {}
+    // GET /api/users/{user_id}/albums/
+    // Gets all albums for a specific user
+    @GetMapping("/{user_id}/albums")
+    public List<Album> getAllAlbumsByUser(@PathVariable("user_id") Long userId) {
+        return albumRepository.findByUserId(userId);
+    }
 
     // PUT /api/users/{user_id}
     // Updates whether a user has admin privileges.
     // Returns the updated user_id and is_admin value on success.
     @PutMapping("/{user_id}")
-    public ResponseEntity<Map<String, Object>> updateAdminStatus(
-            @PathVariable("user_id") Long userId,
-            @RequestBody UpdateAdminRequest request) {
-
-        userAdminStatus.put(userId, request.isAdmin());
-
-        return ResponseEntity.ok(Map.of(
-                "user_id", userId,
-                "is_admin", request.isAdmin()
-        ));
+    public User updateAdminStatus(
+            @PathVariable("user_id") Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> {
+                    user.setAdmin(!user.getAdmin());
+                    return userRepository.save(user);
+                })
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     // DELETE /api/users/{user_id}
     // Deletes a specific user from the database
     // Returns a status code whether delete was successful or not
     @DeleteMapping("/{user_id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable("user_id") Long userId) {
-        return ResponseEntity.noContent().build();
+    public void deleteUser(@PathVariable("user_id") Long userId) {
+        userRepository.deleteById(userId);
     }
 }
