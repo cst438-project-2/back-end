@@ -33,6 +33,3 @@ build/
 .vscode/
 .DS_Store
 secrets/
-
-### Firebase ###
-.firebase/logs/

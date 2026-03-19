@@ -1,6 +1,5 @@
 package org.example.photoalbum.Entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -11,22 +10,18 @@ public class User {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
-    private Long uid; // Generated u_id from firebase. Use this to look up user ID.
     private String username;
     private String email;
-    private Boolean isAdmin = Boolean.FALSE;
 
     // One-to-many with albums
-    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Album> albums;
 
     protected User() {}
 
-    public User(String username, String email, Long uid) {
+    public User(String username, String email) {
         this.username = username;
         this.email = email;
-        this.uid = uid;
     }
 
     @Override
@@ -44,9 +39,7 @@ public class User {
         this.username = username;
     }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getEmail() { return email; }
 
     public void setEmail(String email) {
         this.email = email;
@@ -66,21 +59,5 @@ public class User {
 
     public void setAlbums(List<Album> albums) {
         this.albums = albums;
-    }
-
-    public Long getUid() {
-        return uid;
-    }
-
-    public void setUid(Long uid) {
-        this.uid = uid;
-    }
-
-    public Boolean getAdmin() {
-        return isAdmin;
-    }
-
-    public void setAdmin(Boolean admin) {
-        isAdmin = admin;
     }
 }
