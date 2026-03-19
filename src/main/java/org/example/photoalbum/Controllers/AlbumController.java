@@ -1,14 +1,24 @@
 package org.example.photoalbum.Controllers;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.StreamingHttpOutputMessage;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/albums")
 public class AlbumController {
@@ -16,7 +26,7 @@ public class AlbumController {
     // Temporary in-memory stores for albums and their associated photos.
     // Replace with database repositories once persistence is set up.
     private final Map<Long, Map<String, Object>> albums = new HashMap<>();
-    private final Map<Long, List<String>> albumPhotos = new HashMap<>();
+    private final Map<Long, List<Map<String, Object>>> albumPhotos = new HashMap<>();
 
     // Thread-safe counter used to generate unique album IDs.
     private final AtomicLong albumIdCounter = new AtomicLong(1);
@@ -25,8 +35,7 @@ public class AlbumController {
     public record CreateAlbumRequest(String title, String description) {}
 
     // Request body for adding a photo to an album.
-    // @JsonProperty maps the JSON field "photo_url" to the Java field "photoUrl".
-    public record AddPhotoRequest(@JsonProperty("photo_url") String photoUrl) {}
+    public record AddPhotoRequest(String photoUrl, String storagePath, String description) {}
 
     // Test GET Route
     @GetMapping("/test")
@@ -52,9 +61,25 @@ public class AlbumController {
         return ResponseEntity.status(HttpStatus.CREATED).body(album);
     }
 
-    // POST /api/albums/{album_id}/photos
-    // Adds a photo URL to an existing album.
-    // Returns 404 if the album doesn't exist, otherwise returns the added photo with a 201 status.
+    @GetMapping
+    public ResponseEntity<List<Map<String, Object>>> getAlbums() {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (Map.Entry<Long, Map<String, Object>> entry : albums.entrySet()) {
+            Long albumId = entry.getKey();
+            Map<String, Object> album = new HashMap<>(entry.getValue());
+            album.put("photos", new ArrayList<>(albumPhotos.getOrDefault(albumId, new ArrayList<>())));
+            result.add(album);
+        }
+
+        result.sort((a, b) -> Long.compare(
+                ((Number) b.get("album_id")).longValue(),
+                ((Number) a.get("album_id")).longValue()
+        ));
+
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping("/{album_id}/photos")
     public ResponseEntity<?> addPhoto(
             @PathVariable("album_id") Long albumId,
@@ -64,34 +89,60 @@ public class AlbumController {
             return ResponseEntity.notFound().build();
         }
 
-        albumPhotos.get(albumId).add(request.photoUrl());
+        Map<String, Object> photo = new HashMap<>();
+        photo.put("id", UUID.randomUUID().toString());
+        photo.put("albumId", albumId);
+        photo.put("photoUrl", request.photoUrl());
+        photo.put("storagePath", request.storagePath());
+        photo.put("description", request.description());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                "album_id", albumId,
-                "photo_url", request.photoUrl()
-        ));
+        albumPhotos.get(albumId).add(photo);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(photo);
+    }
+
+    @GetMapping("/{album_id}/photos")
+    public ResponseEntity<?> getPhotos(@PathVariable("album_id") Long albumId) {
+        if (!albums.containsKey(albumId)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(albumPhotos.get(albumId));
     }
 
     // Update photo album title, description, or date
-    @PatchMapping("/api/albums/{album_id}")
+    @PatchMapping("/{album_id}")
     public ResponseEntity<Void> updateAlbum(@PathVariable("album_id") Long albumId, @RequestBody Map<String, String> updates) {
         return ResponseEntity.noContent().build();
     }
 
-    // DELETE /api/albums/{album_id}/photos
-    // Deletes specified photos from an album
-    // Takes a body parameter with a list of photoIds to delete
-    // Returns a status code based on whether deletion was successful
-    @DeleteMapping("/api/albums/{album_id}/photos")
-    public ResponseEntity<Void> deletePhotos(@PathVariable("album_id") Long albumId) {
+    @DeleteMapping("/{album_id}/photos/{photo_id}")
+    public ResponseEntity<Void> deletePhoto(
+            @PathVariable("album_id") Long albumId,
+            @PathVariable("photo_id") String photoId) {
+
+        if (!albums.containsKey(albumId)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<Map<String, Object>> photos = albumPhotos.get(albumId);
+        boolean removed = photos.removeIf(photo -> photoId.equals(photo.get("id")));
+
+        if (!removed) {
+            return ResponseEntity.notFound().build();
+        }
+
         return ResponseEntity.noContent().build();
     }
 
-    // DELETE /api/albums/{album_id}
-    // Deletes an entire album
-    // Returns a status code based on whether deletion was successful
-    @DeleteMapping("/api/albums/{album_id}")
+    @DeleteMapping("/{album_id}")
     public ResponseEntity<Void> deleteAlbum(@PathVariable("album_id") Long albumId) {
+        if (!albums.containsKey(albumId)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        albums.remove(albumId);
+        albumPhotos.remove(albumId);
         return ResponseEntity.noContent().build();
     }
 }

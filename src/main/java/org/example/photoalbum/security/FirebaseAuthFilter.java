@@ -1,14 +1,16 @@
 package org.example.photoalbum.security;
 
+import java.io.IOException;
+
+import org.springframework.web.filter.OncePerRequestFilter;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
 
 public class FirebaseAuthFilter extends OncePerRequestFilter {
 
@@ -18,6 +20,11 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+        response.setHeader("Access-Control-Expose-Headers", "Authorization");
 
         // ✅ Let CORS preflight through
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
@@ -29,6 +36,7 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
 
         if (header == null || !header.startsWith("Bearer ")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("text/plain;charset=UTF-8");
             response.getWriter().write("Missing Bearer token");
             return;
         }
@@ -46,6 +54,7 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("text/plain;charset=UTF-8");
             response.getWriter().write("Invalid/expired token");
         }
     }
