@@ -1,20 +1,25 @@
 package org.example.photoalbum.Controllers;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
+
 import org.example.photoalbum.Entities.Album;
 import org.example.photoalbum.Entities.User;
 import org.example.photoalbum.Repositories.AlbumRepository;
 import org.example.photoalbum.Repositories.UserRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import jakarta.servlet.http.HttpServletRequest;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -62,7 +67,7 @@ public class UserController {
     // DELETE /api/users/{user_id}
     // Deletes a specific user from the database
     // Returns a status code whether delete was successful or not
-    @DeleteMapping("/api/users/{user_id}")
+    @DeleteMapping("/{user_id}")
     public void deleteUser(@PathVariable("user_id") Long userId) {
         userRepository.deleteById(userId);
     }

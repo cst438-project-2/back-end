@@ -1,20 +1,27 @@
 package org.example.photoalbum.Controllers;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
 import org.example.photoalbum.Entities.Album;
 import org.example.photoalbum.Entities.Photo;
 import org.example.photoalbum.Repositories.AlbumRepository;
 import org.example.photoalbum.Repositories.PhotoRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.StreamingHttpOutputMessage;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/albums")
 public class AlbumController {
@@ -27,34 +34,31 @@ public class AlbumController {
         this.photoRepository = photoRepository;
     }
 
-    // GET /api/albums/{album_id}/photos
-    // param: ID of album
-    // Returns all photos for a given album
-    @GetMapping("/{album_id}/photos")
-    public List<Photo> getAllAlbumPhotos(@PathVariable("album_id") Long albumId) {
-        return photoRepository.findByAlbumId(albumId);
+    @GetMapping
+    public List<Album> getAlbums() {
+        return albumRepository.findAll();
     }
 
-    // GET /api/albums/{album_id}
-    // Returns a single album by ID
     @GetMapping("/{album_id}")
     public Album getAlbum(@PathVariable("album_id") Long albumId) {
         return albumRepository.findById(albumId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Album not found"));
     }
 
-    // POST /api/albums
-    // Creates a new photo album.
-    // Returns the created album (including its generated ID) with a 201 status.
+    @GetMapping("/{album_id}/photos")
+    public List<Photo> getAllAlbumPhotos(@PathVariable("album_id") Long albumId) {
+        if (!albumRepository.existsById(albumId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Album not found");
+        }
+        return photoRepository.findByAlbumId(albumId);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Album createAlbum(@RequestBody Album newAlbum) {
         return albumRepository.save(newAlbum);
     }
 
-    // POST /api/albums/{album_id}/photos
-    // Adds a photo URL to an existing album.
-    // Returns 404 if the album doesn't exist, otherwise returns the added photo with a 201 status.
     @PostMapping("/{album_id}/photos")
     @ResponseStatus(HttpStatus.CREATED)
     public Photo addPhoto(@PathVariable("album_id") Long albumId,
@@ -67,12 +71,9 @@ public class AlbumController {
         return photoRepository.save(newPhoto);
     }
 
-    // PATCH /api/albums/{album_id}
-    // Update photo album title, description, or date
     @PatchMapping("/{album_id}")
-    public Album updateAlbum(
-            @PathVariable("album_id") Long albumId,
-            @RequestBody Map<String, String> updates) {
+    public Album updateAlbum(@PathVariable("album_id") Long albumId,
+                             @RequestBody Map<String, String> updates) {
 
         Album album = albumRepository.findById(albumId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Album not found"));
@@ -85,18 +86,15 @@ public class AlbumController {
             album.setDescription(updates.get("description"));
         }
 
-        if (updates.containsKey("date")) {
+        if (updates.containsKey("date") && updates.get("date") != null && !updates.get("date").isBlank()) {
             album.setDate(LocalDateTime.parse(updates.get("date")));
         }
 
         return albumRepository.save(album);
     }
 
-    // DELETE /api/albums/{album_id}/photos
-    // Deletes specified photos from an album
-    // Takes a body parameter with a list of photoIds to delete
-    // Returns a status code based on whether deletion was successful
     @DeleteMapping("/{album_id}/photos")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePhotos(@PathVariable("album_id") Long albumId,
                              @RequestBody List<Long> photoIds) {
         Album album = albumRepository.findById(albumId)
@@ -105,7 +103,7 @@ public class AlbumController {
         List<Photo> photos = photoRepository.findAllById(photoIds);
 
         for (Photo photo : photos) {
-            if (!photo.getAlbum().getId().equals(album.getId())) {
+            if (photo.getAlbum() == null || !photo.getAlbum().getId().equals(album.getId())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Photo does not belong to this album");
             }
         }
@@ -113,11 +111,12 @@ public class AlbumController {
         photoRepository.deleteAll(photos);
     }
 
-    // DELETE /api/albums/{album_id}
-    // Deletes an entire album
-    // Returns a status code based on whether deletion was successful
     @DeleteMapping("/{album_id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAlbum(@PathVariable("album_id") Long albumId) {
+        if (!albumRepository.existsById(albumId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Album not found");
+        }
         albumRepository.deleteById(albumId);
     }
 }
