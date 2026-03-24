@@ -45,9 +45,29 @@ public class UserController {
 
     // GET /api/users/{user_id}/albums/
     // Gets all albums for a specific user
-    @GetMapping("/{user_id}/albums")
-    public List<Album> getAllAlbumsByUser(@PathVariable("user_id") Long userId) {
-        return albumRepository.findByUserId(userId);
+    @GetMapping("/albums")
+    public List<Album> getAllAlbumsByUser(HttpServletRequest request) {
+        String uid = (String) request.getAttribute("uid");
+        String email = (String) request.getAttribute("email");
+        String name = (String) request.getAttribute("name");
+
+        if (uid == null || uid.isBlank() || email == null || email.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing authenticated user");
+        }
+
+        User user = userRepository.findAll().stream()
+                .filter(existingUser -> uid.equals(existingUser.getUid()))
+                .findFirst()
+                .orElseGet(() -> {
+                    String username = (name != null && !name.isBlank())
+                            ? name
+                            : email.split("@")[0];
+
+                    User createdUser = new User(username, email, uid);
+                    return userRepository.save(createdUser);
+                });
+
+        return albumRepository.getAllByUser(user);
     }
 
     // PUT /api/users/{user_id}

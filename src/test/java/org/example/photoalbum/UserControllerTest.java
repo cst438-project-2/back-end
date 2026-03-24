@@ -17,11 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -58,6 +57,19 @@ class UserControllerTest {
 
     @Test
     void getAllAlbumsByUser_returnsAlbums() {
+        // Arrange
+        String uid = "test-uid";
+        String email = "test@example.com";
+        String name = "testuser";
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getAttribute("uid")).thenReturn(uid);
+        when(request.getAttribute("email")).thenReturn(email);
+        when(request.getAttribute("name")).thenReturn(name);
+
+        User user = new User("testuser", email, uid);
+        user.setId(1L);
+
         Album album1 = new Album(
                 "Album 1",
                 "Photos from trip",
@@ -72,14 +84,18 @@ class UserControllerTest {
         );
         album2.setId(2L);
 
-        when(albumRepository.findByUserId(5L)).thenReturn(List.of(album1, album2));
+        when(userRepository.findAll()).thenReturn(List.of(user));
+        when(albumRepository.getAllByUser(user)).thenReturn(List.of(album1, album2));
 
-        List<Album> result = userController.getAllAlbumsByUser(5L);
+        // Act
+        List<Album> result = userController.getAllAlbumsByUser(request);
 
+        // Assert
         assertEquals(2, result.size());
         assertEquals("Album 1", result.get(0).getTitle());
         assertEquals("Album 2", result.get(1).getTitle());
-        verify(albumRepository).findByUserId(5L);
+
+        verify(albumRepository).getAllByUser(user);
     }
 
     @Test
