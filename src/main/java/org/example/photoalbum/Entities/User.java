@@ -1,29 +1,40 @@
 package org.example.photoalbum.Entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Long uid; // Generated u_id from firebase. Use this to look up user ID.
+
+    @Column(unique = true, nullable = false)
+    private String uid; // ✅ Firebase UID (STRING)
+
     private String username;
     private String email;
+
     private Boolean isAdmin = Boolean.FALSE;
 
-    // One-to-many with albums
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Album> albums;
 
     protected User() {}
 
-    public User(String username, String email, Long uid) {
+    public User(String username, String email, String uid) {
         this.username = username;
         this.email = email;
         this.uid = uid;
@@ -33,7 +44,8 @@ public class User {
     public String toString() {
         return String.format(
                 "User[id=%d, username='%s', email='%s']",
-                id, username, email);
+                id, username, email
+        );
     }
 
     public String getUsername() {
@@ -60,20 +72,20 @@ public class User {
         this.id = id;
     }
 
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
     public List<Album> getAlbums() {
         return albums;
     }
 
     public void setAlbums(List<Album> albums) {
         this.albums = albums;
-    }
-
-    public Long getUid() {
-        return uid;
-    }
-
-    public void setUid(Long uid) {
-        this.uid = uid;
     }
 
     public Boolean getAdmin() {

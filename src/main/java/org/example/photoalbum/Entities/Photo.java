@@ -1,23 +1,33 @@
 package org.example.photoalbum.Entities;
 
-import jakarta.persistence.*;
-import org.example.photoalbum.Entities.Album;
-
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "photos")
 public class Photo {
+
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private String photo_url;
     private LocalDateTime added_at;
 
     // Many-to-one relationship with albums
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "album_id", nullable = false)
+    @JsonBackReference
     private Album album;
 
     protected Photo() {}
@@ -30,17 +40,15 @@ public class Photo {
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf =
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         return String.format(
                 "Photo[id=%d, photo_url='%s', added_at='%s']",
                 id,
                 photo_url,
-                added_at != null ? sdf.format(added_at) : null
+                added_at != null ? added_at.format(formatter) : null
         );
     }
-
 
     public Long getId() {
         return id;

@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 
 import jakarta.servlet.FilterChain;
@@ -50,12 +51,13 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
             request.setAttribute("email", decoded.getEmail());
             request.setAttribute("name", decoded.getName());
 
-            filterChain.doFilter(request, response);
-
-        } catch (Exception e) {
+        } catch (FirebaseAuthException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("text/plain;charset=UTF-8");
-            response.getWriter().write("Invalid/expired token");
+            response.getWriter().write("Invalid/expired token: " + e.getMessage());
+            return;
         }
+
+        filterChain.doFilter(request, response);
     }
 }
