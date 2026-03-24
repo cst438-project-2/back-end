@@ -1,29 +1,40 @@
 package org.example.photoalbum.Entities;
 
-import jakarta.persistence.*;
-
-import org.example.photoalbum.Entities.Photo;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "albums")
 public class Album {
+
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private String title;
     private String description;
     private LocalDateTime date;
 
-    // One-to-many relationship to photos
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Photo> photos;
 
-    // Many-to-one relationship with users
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
     protected Album() {}
@@ -36,15 +47,12 @@ public class Album {
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf =
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
         return String.format(
                 "Album[id=%d, title='%s', description='%s', date='%s']",
                 id,
                 title,
                 description,
-                date != null ? sdf.format(date) : null
+                date
         );
     }
 
