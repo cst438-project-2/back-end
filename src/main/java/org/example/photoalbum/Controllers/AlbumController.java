@@ -6,8 +6,10 @@ import java.util.Map;
 
 import org.example.photoalbum.Entities.Album;
 import org.example.photoalbum.Entities.Photo;
+import org.example.photoalbum.Entities.User;
 import org.example.photoalbum.Repositories.AlbumRepository;
 import org.example.photoalbum.Repositories.PhotoRepository;
+import org.example.photoalbum.Repositories.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +23,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/albums")
@@ -28,10 +32,16 @@ public class AlbumController {
 
     private final AlbumRepository albumRepository;
     private final PhotoRepository photoRepository;
+    private final UserRepository userRepository;
 
-    public AlbumController(AlbumRepository albumRepository, PhotoRepository photoRepository) {
+    public AlbumController(
+            AlbumRepository albumRepository,
+            PhotoRepository photoRepository,
+            UserRepository userRepository
+    ) {
         this.albumRepository = albumRepository;
         this.photoRepository = photoRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
@@ -55,7 +65,28 @@ public class AlbumController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Album createAlbum(@RequestBody Album newAlbum) {
+    public Album createAlbum(@RequestBody Album newAlbum, HttpServletRequest request) {
+        String uid = (String) request.getAttribute("uid");
+        String email = (String) request.getAttribute("email");
+        String name = (String) request.getAttribute("name");
+
+        if (uid == null || uid.isBlank() || email == null || email.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing authenticated user");
+        }
+
+        User user = userRepository.findAll().stream()
+                .filter(existingUser -> uid.equals(existingUser.getUid()))
+                .findFirst()
+                .orElseGet(() -> {
+                    String username = (name != null && !name.isBlank())
+                            ? name
+                            : email.split("@")[0];
+
+                    User createdUser = new User(username, email, uid);
+                    return userRepository.save(createdUser);
+                });
+
+        newAlbum.setUser(user);
         return albumRepository.save(newAlbum);
     }
 

@@ -1,26 +1,32 @@
 package org.example.photoalbum;
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.example.photoalbum.Controllers.UserController;
-import org.example.photoalbum.Entities.Album;
-import org.example.photoalbum.Entities.User;
-import org.example.photoalbum.Repositories.AlbumRepository;
-import org.example.photoalbum.Repositories.UserRepository;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.example.photoalbum.Controllers.UserController;
+import org.example.photoalbum.Entities.Album;
+import org.example.photoalbum.Entities.User;
+import org.example.photoalbum.Repositories.AlbumRepository;
+import org.example.photoalbum.Repositories.UserRepository;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
@@ -81,7 +87,7 @@ class UserControllerTest {
         User user = new User(
                 "username",
                 "test@email.com",
-                12345L
+                "firebase-uid-12345"
         );
         user.setId(1L);
 
@@ -99,7 +105,7 @@ class UserControllerTest {
         User user = new User(
                 "username",
                 "test@email.com",
-                12345L
+                "firebase-uid-12345"
         );
         user.setId(1L);
         user.setAdmin(true);

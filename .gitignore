@@ -36,3 +36,4 @@ secrets/
 
 ### Firebase ###
 .firebase/logs/
+cloud-sql-proxy

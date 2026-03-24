@@ -1,27 +1,34 @@
 package org.example.photoalbum;
 
-import org.example.photoalbum.Controllers.AlbumController;
-import org.example.photoalbum.Entities.Album;
-import org.example.photoalbum.Entities.Photo;
-import org.example.photoalbum.Repositories.AlbumRepository;
-import org.example.photoalbum.Repositories.PhotoRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.example.photoalbum.Controllers.AlbumController;
+import org.example.photoalbum.Entities.Album;
+import org.example.photoalbum.Entities.Photo;
+import org.example.photoalbum.Entities.User;
+import org.example.photoalbum.Repositories.AlbumRepository;
+import org.example.photoalbum.Repositories.PhotoRepository;
+import org.example.photoalbum.Repositories.UserRepository;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @ExtendWith(MockitoExtension.class)
 class AlbumControllerTest {
@@ -31,6 +38,9 @@ class AlbumControllerTest {
 
     @Mock
     private PhotoRepository photoRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private AlbumController albumController;
@@ -96,11 +106,18 @@ class AlbumControllerTest {
                 "Test Description",
                 LocalDateTime.of(2024, 6, 1, 12, 0)
         );
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        User user = mock(User.class);
+
+        when(request.getAttribute("email")).thenReturn("test@example.com");
+        when(userRepository.findAll()).thenReturn(List.of(user));
+        when(user.getEmail()).thenReturn("test@example.com");
 
         when(albumRepository.save(newAlbum)).thenReturn(newAlbum);
 
-        Album result = albumController.createAlbum(newAlbum);
+        Album result = albumController.createAlbum(newAlbum, request);
 
+        assertEquals(user, newAlbum.getUser());
         assertEquals(newAlbum, result);
         verify(albumRepository).save(newAlbum);
     }

@@ -1,23 +1,26 @@
 package org.example.photoalbum;
 
+import java.time.LocalDateTime;
+
 import org.example.photoalbum.Entities.Album;
 import org.example.photoalbum.Entities.User;
 import org.example.photoalbum.Repositories.AlbumRepository;
 import org.example.photoalbum.Repositories.PhotoRepository;
 import org.example.photoalbum.Repositories.UserRepository;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.LocalDateTime;
-
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // Spins up the full Spring context with an H2 in-memory database.
 // The "dev" profile disables the Firebase auth filter so requests reach the controllers freely.
@@ -49,7 +52,7 @@ class UserControllerIntegrationTest {
         albumRepository.deleteAll();
         userRepository.deleteAll();
 
-        user = userRepository.save(new User("testuser", "test@example.com", 12345L));
+        user = userRepository.save(new User("testuser", "test@example.com", "firebase-uid-12345"));
     }
 
     // ── GET /api/users/me ─────────────────────────────────────────────────────
@@ -116,10 +119,6 @@ class UserControllerIntegrationTest {
     }
 
     // ── DELETE /api/users/{id} ────────────────────────────────────────────────
-    // Note: the controller has a bug — @DeleteMapping("/api/users/{user_id}")
-    // should be @DeleteMapping("/{user_id}"). The actual mapped URL is
-    // /api/users/api/users/{id}. This test documents the expected correct behavior
-    // and will fail until the mapping is fixed.
 
     @Test
     void deleteUser_returns200() throws Exception {
