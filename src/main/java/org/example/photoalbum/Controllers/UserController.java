@@ -36,10 +36,14 @@ public class UserController {
     // Retrieves Firebase credentials from Oauth
     @GetMapping("/me")
     public Map<String, Object> me(HttpServletRequest req) {
+        String uid = (String) req.getAttribute("uid");
+        User dbUser = userRepository.findAll().stream().filter(u -> uid.equals(u.getUid())).findFirst().orElse(null);
         return Map.of(
                 "uid", req.getAttribute("uid"),
                 "email", req.getAttribute("email"),
-                "name", req.getAttribute("name")
+                "name", req.getAttribute("name"),
+                "isAdmin", dbUser != null && Boolean.TRUE.equals(dbUser.getAdmin())
+
         );
     }
 
