@@ -55,7 +55,7 @@ public class AlbumController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Album not found"));
     }
 
-    @GetMapping("/{album_id}/photos")
+    @I meanGetMapping("/{album_id}/photos")
     public List<Photo> getAllAlbumPhotos(@PathVariable("album_id") Long albumId) {
         if (!albumRepository.existsById(albumId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Album not found");
