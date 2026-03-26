@@ -33,6 +33,7 @@ public class FirebaseConfig {
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(credentials)
+                    .setProjectId("photoapi-57629")
                     .build();
 
             FirebaseApp.initializeApp(options);
