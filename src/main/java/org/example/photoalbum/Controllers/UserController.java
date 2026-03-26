@@ -19,7 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "https://front-end-1qk9.onrender.com"})
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
